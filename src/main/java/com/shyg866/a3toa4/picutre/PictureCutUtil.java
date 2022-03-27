@@ -28,10 +28,10 @@ public final class PictureCutUtil {
         //获取文件列表
         List jpgList = getJPGList(imagPath);
         if (jpgList == null || jpgList.size() == 0) {
-            System.out.println("未找到要操作的图片");
+            log.info("未找到要操作的图片");
             return;
         } else {
-            System.out.println("需要操作的A3图片数量为：" + jpgList.size());
+            log.info("需要操作的A3图片数量为：" + jpgList.size());
         }
         //裁剪 所有A3图片
         cut(imagPath, jpgList);
@@ -48,12 +48,12 @@ public final class PictureCutUtil {
 //        String imagPath = "F:\\picture";
         String     imagPath = getSrcImgPath(filePath);
         //获取文件列表
-        List jpgList = getJPGList(imagPath);
+        List jpgList = getJPGList(filePath);
         if (jpgList == null || jpgList.size() == 0) {
-            System.out.println("未找到要操作的图片");
+            log.info("未找到要操作的图片");
             return "未找到需要处理的图片";
         } else {
-            System.out.println("需要操作的A3图片数量为：" + jpgList.size());
+            log.info("需要操作的A3图片数量为：" + jpgList.size());
             //裁剪 所有A3图片
             cut(imagPath, jpgList);
             //拼接所有的图片，生成最终A4的pdf文件，用于打印
@@ -69,14 +69,13 @@ public final class PictureCutUtil {
      * @return
      */
     public static String getSrcImgPath(String imagPath){
-        if (!imagPath.endsWith("\\") && !imagPath.endsWith("/")) {
-            if (imagPath.indexOf("\\") > 0) {
-                imagPath = imagPath + "\\";
-            } else {
-                imagPath = imagPath + "/";
-            }
+
+        File file = new File(imagPath);
+        if (file.isDirectory()){
+            return imagPath;
+        }else{
+            return file.getParent() + "\\";
         }
-        return imagPath;
     }
 
     /**
@@ -92,8 +91,8 @@ public final class PictureCutUtil {
         int width = 0, height = 0;
 
         for (int i = 0; i < jpgNameList.size(); i++) {
-            System.out.println("开始处理A3图片的名称为：" + jpgNameList.get(i));
-            String fileParentPath = imageFilePath; // 父级目录
+            log.info("开始处理A3图片的名称为：" + jpgNameList.get(i));
+            String fileParentPath = imageFilePath.endsWith("/")||imageFilePath.endsWith("\\")?imageFilePath:imageFilePath+"\\"; // 父级目录
 
             File srcImageFile = new File(fileParentPath + jpgNameList.get(i));
 
@@ -131,7 +130,7 @@ public final class PictureCutUtil {
 
                 //使用ImageIO的write方法进行输出
                 ImageIO.write(image4Left, formatName, destImageFile);
-                System.out.println("左侧图片：" + leftImageName);
+                log.info("左侧图片：" + leftImageName);
                 //右侧图片名称
                 String rightImageName = fileName + "_002." + formatName;
 
@@ -143,11 +142,11 @@ public final class PictureCutUtil {
                 destImageFile = new File(filePath2);
                 //使用ImageIO的write方法进行输出
                 ImageIO.write(image4Right, formatName, destImageFile);
-                System.out.println("右侧图片：" + rightImageName);
+                log.info("右侧图片：" + rightImageName);
             } catch (Exception e) {
-                System.out.println("图片裁剪时,出错。日志为："+e);
+                log.info("图片裁剪时,出错。日志为：[{}]",e);
                 throw e;            }
-            System.out.println("A3图片的名称为：" + jpgNameList.get(i) + "处理完毕");
+            log.info("A3图片的名称为：" + jpgNameList.get(i) + "处理完毕");
         }
     }
 
@@ -163,8 +162,9 @@ public final class PictureCutUtil {
      */
     private static String generatePdfFile(String imageFilePath, List jpgNameList) throws DocumentException, IOException {
         try{
+            imageFilePath = imageFilePath + "\\";
             //获取到文件名称
-            String pdfFileName =  imageFilePath  +((String) jpgNameList.get(0)).substring(0, ((String) jpgNameList.get(0)).lastIndexOf("_")) + ".pdf";
+            String pdfFileName =   imageFilePath +((String) jpgNameList.get(0)).substring(0, ((String) jpgNameList.get(0)).lastIndexOf(".")) + ".pdf";
             Document doc = new Document(PageSize.A4, 0, 0, 0, 0);
             PdfWriter.getInstance(doc, new FileOutputStream(pdfFileName));
             doc.open();
@@ -196,10 +196,10 @@ public final class PictureCutUtil {
 
             doc.close();
             File pdfFile = new File(pdfFileName);
-            System.out.println("生成的pdf文件名：" + pdfFileName);
+            log.info("生成的pdf文件名：" + pdfFileName);
             return pdfFileName;
         }catch (Exception e){
-            System.out.println("生成Pdf时,出错。日志为："+e);
+            log.info("生成Pdf时,出错。日志为：",e);
             throw e;
         }
 
@@ -245,7 +245,7 @@ public final class PictureCutUtil {
                 try {
                     fileInputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                   log.error(e);
                 }
             }
 
@@ -257,20 +257,26 @@ public final class PictureCutUtil {
 
     //读取文件列表，返回到List中
     public static List getJPGList(String imagPath) {
-
+        //获取需要操作的图片名称数量
         //读取目录文件
         File file = new File(imagPath);
+        List listName = new ArrayList();
+        //如果就单独处理某张图片的话，此处需要单独处理下，防止处理所有的图片信息
+        if (imagPath.endsWith("jpg")||imagPath.endsWith("JPG")||imagPath.endsWith("png")||imagPath.endsWith("PNG")){
+            listName.add(file.getName());
+            return listName;
+        }
+
+
+
         //获取所有文件
         String[] fileNames = file.list();
-        //获取需要操作的图片名称数量
-
-        List listName = new ArrayList();
         for (int i = 0; i < fileNames.length; i++) {
             String name = fileNames[i];
             if (name != null && name != "") {
                 //文件格式（后缀）
                 String formatName = name.substring(name.lastIndexOf(".") + 1);
-                if ("jpg".equalsIgnoreCase(formatName)) {
+                if ("jpg".equalsIgnoreCase(formatName)||"png".equalsIgnoreCase(formatName)) {
                     listName.add(name);
                 }
             }
