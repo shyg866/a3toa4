@@ -44,6 +44,15 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
             <version>2.6.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.aspose.words</groupId>
+            <artifactId>aspose-words</artifactId>
+            <version>15.8.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/aspose-words-15.8.0-jdk16.jar</systemPath>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -51,6 +60,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!--该参数设置在maven打包时讲本地的jar也打到生成的包中-->
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>

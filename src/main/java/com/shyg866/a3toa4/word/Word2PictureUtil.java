@@ -94,7 +94,8 @@ public class Word2PictureUtil {
                 jpgList.add(jpgFileName);//返回每个图片的名称。
                 ImageIO.write(mergeImage, "jpg", new File(jpgFilePathName));
                 log.info("第" + (i + 1) + "页生成的图片名称为：" + jpgFilePathName);
-                imageInputStream.close();
+//                imageInputStream.flush();
+//                imageInputStream.close();
             }
             log.info("转换文档耗时："+(System.currentTimeMillis()-old)/1000L +" 秒。");
             return file.getParent();
