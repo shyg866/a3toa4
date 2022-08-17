@@ -20,12 +20,11 @@ public class A3ToA4Controller {
     @RequestMapping("/a3ImgFilePath")
     public String index(@RequestParam String filePath, Model model) {
 
-        System.out.println("您上送的文件目录或者文件为：" + filePath);
+        log.info("您上送的文件目录或者文件为：" + filePath);
         try {
             if (filePath != null) {
                 //如果输入的是word文档，先讲word转换成图片。
                 filePath =  getWordFileList(filePath);
-
                 String name = PictureCutUtil.imgToPdf(filePath);
                 model.addAttribute("pdfFileName", name);
             }
