@@ -5,6 +5,9 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.shyg866.a3toa4.controller.A3ToA4Controller;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,7 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class PdfUtils {
-
+    static Log log = LogFactory.getLog(PdfUtils.class);
     public static void main(String[] args) throws DocumentException, IOException {
 
       String[] files= null;
@@ -60,7 +63,7 @@ public class PdfUtils {
 
         doc.close();
         File pdfFile = new File(pdfFileName);
-        System.out.println("生成的pdf文件名：" + pdfFileName);
+        log.info("生成的pdf文件名：" + pdfFileName);
 
     }
 
@@ -97,13 +100,13 @@ public class PdfUtils {
             fileInputStream.read(bytesArray);
 
         } catch (IOException e) {
-            e.printStackTrace();
+           log.error(e);
         } finally {
             if (fileInputStream != null) {
                 try {
                     fileInputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error(e);
                 }
             }
 
