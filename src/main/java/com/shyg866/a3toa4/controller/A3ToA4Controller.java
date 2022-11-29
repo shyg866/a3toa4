@@ -39,7 +39,7 @@ public class A3ToA4Controller {
     public String  getWordFileList(String filePath) throws Exception {
         //如果输入的是word文档，先讲word转换成图片。
         if (filePath.endsWith("docx") || filePath.endsWith("doc")) {
-            log.info("您输入的是word文档。此时需要先将word转换成图片，再生成pdf文件。");
+            log.info("您输入的是word文档，此时需要先将word转换成图片，再生成pdf文件。");
             //返回所有图片的父目录。
             filePath = Word2PictureUtil.wordToImg(filePath);
             //此时需要单独处理某张图片。
